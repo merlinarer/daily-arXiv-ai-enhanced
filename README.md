@@ -1,3 +1,7 @@
+# Update
+1. Fixed the bug related to the categories, strictly falling to the predefined CATEGORIES
+2. Add a new variables INTERESTS, which contain the research interests of user, and use **DeepSeek** to determine the relevance of the given paper with user's interests. The final paper list in md is sorted with this relevance.
+
 # About
 This tool will daily crawl https://arxiv.org and use LLMs to summarize them.
 
