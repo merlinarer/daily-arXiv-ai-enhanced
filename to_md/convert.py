@@ -15,23 +15,31 @@ if __name__ == "__main__":
             return preference.index(cate)
         else:
             return len(preference)
+    
+    def get_right_cate(cate_list):
+        for c in cate_list:
+            if c in preference:
+                return c
+        return cate_list[0]
 
     with open(args.data, "r") as f:
         for line in f:
             data.append(json.loads(line))
 
-    categories = set([item["categories"][0] for item in data])
+    categories = set([get_right_cate(item["categories"]) for item in data])
     template = open("paper_template.md", "r").read()
     categories = sorted(categories, key=rank)
     cnt = {cate: 0 for cate in categories}
     for item in data:
-        if item["categories"][0] not in cnt.keys():
+        if get_right_cate(item["categories"]) not in cnt.keys():
             continue
-        cnt[item["categories"][0]] += 1
+        cnt[get_right_cate(item["categories"])] += 1
 
     markdown = f"<div id=toc></div>\n\n# Table of Contents\n\n"
     for idx, cate in enumerate(categories):
         markdown += f"- [{cate}](#{cate}) [Total: {cnt[cate]}]\n"
+
+    data = sorted(data, key=lambda x: x.get("AI", {}).get("relevance", float('-inf')), reverse=True)
 
     idx = count(1)
     for cate in categories:
@@ -45,6 +53,7 @@ if __name__ == "__main__":
                     summary=item["summary"],
                     url=item['abs'],
                     tldr=item['AI']['tldr'],
+                    relevance=item['AI']['relevance'],
                     motivation=item['AI']['motivation'],
                     method=item['AI']['method'],
                     result=item['AI']['result'],
@@ -52,8 +61,8 @@ if __name__ == "__main__":
                     cate=item['categories'][0],
                     idx=next(idx)
                 )
-                for item in data if item["categories"][0] == cate
+                for item in data if get_right_cate(item["categories"]) == cate
             ]
         )
-    with open(args.data.split('_')[0] + '.md', "w") as f:
+    with open(args.data.split('_')[0] + '.md', "w", encoding="utf-8") as f:
         f.write(markdown)

@@ -28,6 +28,20 @@ def main():
     args = parse_args()
     model_name = os.environ.get("MODEL_NAME", 'deepseek-chat')
     language = os.environ.get("LANGUAGE", 'Chinese')
+    interests = '''
+1. Large Language Models (LLMs) 
+1) general-purpose LLM training and inference
+2) Evaluation and benchmarking
+3) Interpretability and analysis
+4) Reinforcement learning (e.g., RLHF)
+5) Trustworthy AI (robustness, fairness, safety)
+
+2. Foundation Model Architectures
+1) Transformer optimization and variants
+2) State space models (e.g., Mamba)
+3) Efficient and scalable architecture design
+'''
+    interests = os.environ.get("INTERESTS", interests)
 
     data = []
     with open(args.data, "r") as f:
@@ -58,7 +72,8 @@ def main():
         try:
             response: Structure = chain.invoke({
                 "language": language,
-                "content": d['summary']
+                "content": d['summary'],
+                "interests": interests
             })
             d['AI'] = response.model_dump()
         except langchain_core.exceptions.OutputParserException as e:
@@ -68,7 +83,8 @@ def main():
                  "motivation": "Error",
                  "method": "Error",
                  "result": "Error",
-                 "conclusion": "Error"
+                 "conclusion": "Error",
+                 "relevance": 1.0
             }
         with open(args.data.replace('.jsonl', f'_AI_enhanced_{language}.jsonl'), "a") as f:
             f.write(json.dumps(d) + "\n")

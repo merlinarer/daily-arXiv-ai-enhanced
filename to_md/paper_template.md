@@ -3,6 +3,8 @@
 
 Main category: {cate}
 
+Relevance: {relevance}
+
 TL;DR: {tldr}
 
 
