@@ -4,6 +4,7 @@ import sys
 
 import dotenv
 import argparse
+from datetime import datetime, timedelta
 
 import langchain_core.exceptions
 from langchain_openai import ChatOpenAI
@@ -23,6 +24,16 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--data", type=str, required=True, help="jsonline data file")
     return parser.parse_args()
+
+def get_yestoday(date_str):
+    date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+    # 计算昨天
+    yesterday = date_obj - timedelta(days=1)
+    # 转换为字符串
+    yesterday_str = yesterday.strftime("%Y-%m-%d")
+
+    return yesterday_str
+
 
 def main():
     args = parse_args()
@@ -47,8 +58,19 @@ def main():
     with open(args.data, "r") as f:
         for line in f:
             data.append(json.loads(line))
-
+    
     seen_ids = set()
+
+    date_today = get_yestoday(os.path.basename(args.data).replace(".jsonl", ""))
+    for _ in range(3):
+        path = os.path.join(os.path.dirname(args.data), date_today + ".jsonl")
+        if os.path.exists(path):
+            with open(path, "r") as f:
+                for line in f:
+                    item = json.loads(line)
+                    seen_ids.add(item['id'])
+        date_today = get_yestoday(date_today)
+    
     unique_data = []
     for item in data:
         if item['id'] not in seen_ids:
