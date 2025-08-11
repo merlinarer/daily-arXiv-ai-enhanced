@@ -21,6 +21,10 @@ if __name__ == "__main__":
             if c in preference:
                 return c
         return cate_list[0]
+    
+    if not os.path.exists(args.data):
+        import sys
+        sys.exit(1)
 
     with open(args.data, "r") as f:
         for line in f:
